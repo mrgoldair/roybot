@@ -1,47 +1,9 @@
-
--- data Heading = North | South | East | West
--- type Position = { x::Int, y::Int }
--- data Piece = Piece Heading Position
-
--- data Turn = CCW | CW
--- data Move = Forward | Backward
--- data Input = Move | Turn
-
--- turn :: Turn -> Piece -> Piece
--- turn CCW (Piece North position) = (Piece West position)
--- turn CCW (Piece South position) = (Piece East position)
--- turn CCW (Piece West position) = (Piece South position)
--- turn CCW (Piece East position) = (Piece North position)
--- turn CW (Piece North position) = (Piece East position)
--- turn CW (Piece South position) = (Piece West position)
--- turn CW (Piece East position) = (Piece South position)
--- turn CW (Piece West position) = (Piece North position)
-
--- move :: Move -> Piece -> Piece
--- move Forward (Piece North { x,y }) = Piece North { x:2, y:y + 1  }
--- move Forward (Piece South { x,y }) = Piece South { x:x, y:y - 1 }
--- move Forward (Piece East { x,y }) = (Piece East { x:x - 1, y:y })
--- move Forward (Piece West { x,y }) = (Piece West { x:x + 1, y })
--- move Backward (Piece North { x,y }) = (Piece North { x:x, y:y - 1 })
--- move Backward (Piece South { x,y }) = (Piece South { x:x, y:y + 1 })
--- move Backward (Piece East { x,y }) = (Piece East { x:x + 1, y:y })
--- move Backward (Piece West { x,y }) = (Piece West { x:x - 1, y:y })
-
--- moveGuard :: Move -> Piece -> Piece
--- moveGuard m p =
---   let
---     (Piece _ { x,y }) = move m p
---   in
---     if x > 5 || y < 0
---     then p
---     else move m 
 module Main where
 
 import Prelude
 
 import Data.Array (range)
 import Data.Maybe (Maybe(..))
-import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Halogen as H
 import Halogen.Aff as HA
@@ -55,27 +17,76 @@ main = HA.runHalogenAff do
   body <- HA.awaitBody
   runUI component unit body
 
-type State = Int
-data Action = Increment | Decrement
+-- How to tie West to col, North to row and vice versa?
+
+data Heading = North | South | East | West
+instance showHeading :: Show Heading where
+  show North = "North"
+  show South = "South"
+  show East = "East"
+  show West = "West"
+
+type Position = { row::Int,col::Int }
+type State = { position::Position, heading::Heading }
+data Action = Forward | Backward | CW | CCW
+
+moveForward :: State -> State
+moveForward state@{ position:{row,col},heading } =
+  case heading of
+    North
+      | row > 1 -> state { position { row = row - 1 } }
+      | otherwise -> state
+    South
+      | row < 5 -> state { position { row = row + 1 } }
+      | otherwise -> state
+    East
+      | col < 5 -> state { position { col = col + 1 } }
+      | otherwise -> state
+    West
+      | col > 1 -> state { position { col = col - 1 } }
+      | otherwise -> state
+
+moveBackward :: State -> State
+moveBackward state@{ position:{ row,col },heading } =
+  case heading of
+    North
+      | row < 5 -> state { position { row = row + 1} }
+      | otherwise -> state
+    South
+      | row > 1 -> state { position { row = row - 1 } }
+      | otherwise -> state
+    East
+      | col > 1 -> state { position { col = col - 1 } }
+      | otherwise -> state
+    West
+      | col < 5 -> state { position { col = col + 1 } }
+      | otherwise -> state
+
+turnCW :: Heading -> Heading
+turnCW heading =
+  case heading of
+    North -> East
+    South -> West
+    East -> South
+    West -> North
+
+turnCCW :: Heading -> Heading
+turnCCW = turnCW <<< turnCW <<< turnCW
 
 -- Grid Module
-grid :: forall w i. HH.HTML w i
-grid =
+grid :: forall w i. State -> HH.HTML w i
+grid { position } =
   HH.div
     [ HP.classes [ HH.ClassName "grid" ] ]
     (map 
-      (\_ -> HH.div [ HP.classes [ HH.ClassName "cell" ] ] [ HH.text "div" ])
-      (range 1 25))
+      (\c ->
+        if (eq position c) then
+          HH.div [ HP.classes [ HH.ClassName "robot", HH.ClassName "heading-" ] ] [ HH.text "R" ]
+        else
+          HH.div [ HP.classes [ HH.ClassName "cell" ] ] [ HH.text (show c) ])
+      (range 1 5 >>= \n -> [{ row:n,col:1 }, { row:n,col:2 }, { row:n,col:3 }, { row:n,col:4 }, { row:n,col:5 }]))
 
--- Grid Module
-gridCell :: Int -> Int -> (Int -> Int -> (Tuple Int Int))
-gridCell d s = \r c ->
-  let
-    n = d / s
-  in
-    (Tuple (n * r) (n * c))
-
-component :: forall query i o m. H.Component HH.HTML query i o m
+component :: forall query i o monad. H.Component HH.HTML query i o monad
 component =
   H.mkComponent
     { initialState
@@ -84,22 +95,29 @@ component =
     }
   where
   initialState :: forall input. input -> State
-  initialState _ = 0
+  initialState _ = { position:{ row:3,col:3 }, heading:North }
 
   -- takes State to render HTML which ultimately calls on an Action
   render :: forall mo. State -> H.ComponentHTML Action () mo
   render state =
     HH.div_
-      [ HH.button [ HE.onClick \_ -> Just Decrement ] [ HH.text "-" ]
-      , HH.div_ [ HH.text $ show state ]
-      , HH.button [ HE.onClick \_ -> Just Increment ] [ HH.text "+" ]
-      , grid
+      [ HH.button [ HE.onClick \_ -> Just Forward ] [ HH.text "+" ]
+      , HH.div_ [ HH.text $ show state.position, HH.text $ show state.heading ]
+      , HH.button [ HE.onClick \_ -> Just Backward ] [ HH.text "-" ]
+      , HH.button [ HE.onClick \_ -> Just CW ] [ HH.text "->" ]
+      , HH.button [ HE.onClick \_ -> Just CCW ] [ HH.text "<-" ]
+      , grid state
       ]
 
   -- takes an Action (as generated by ComponentHTML) and updates the State
   handleAction :: forall output m. Action -> H.HalogenM State Action () output m Unit
-  handleAction = case _ of
-    Increment ->
-      H.modify_ \state -> state + 1
-    Decrement ->
-      H.modify_ \state -> state - 1
+  handleAction action =
+    case action of
+      Forward ->
+        H.modify_ \state -> moveForward state
+      Backward ->
+        H.modify_ \state -> moveBackward state
+      CW ->
+        H.modify_ \state -> state { heading = (turnCW state.heading) }
+      CCW ->
+        H.modify_ \state -> state { heading = (turnCCW state.heading) }
