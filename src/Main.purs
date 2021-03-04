@@ -28,10 +28,10 @@ instance showHeading :: Show Heading where
 
 type Position = { row::Int,col::Int }
 type State = { position::Position, heading::Heading }
-data Action = Forward | Backward | CW | CCW
+data Action = Forward | CW | CCW
 
-moveForward :: State -> State
-moveForward state@{ position:{row,col},heading } =
+move :: State -> State
+move state@{ position:{row,col},heading } =
   case heading of
     North
       | row > 1 -> state { position { row = row - 1 } }
@@ -44,22 +44,6 @@ moveForward state@{ position:{row,col},heading } =
       | otherwise -> state
     West
       | col > 1 -> state { position { col = col - 1 } }
-      | otherwise -> state
-
-moveBackward :: State -> State
-moveBackward state@{ position:{ row,col },heading } =
-  case heading of
-    North
-      | row < 5 -> state { position { row = row + 1} }
-      | otherwise -> state
-    South
-      | row > 1 -> state { position { row = row - 1 } }
-      | otherwise -> state
-    East
-      | col > 1 -> state { position { col = col - 1 } }
-      | otherwise -> state
-    West
-      | col < 5 -> state { position { col = col + 1 } }
       | otherwise -> state
 
 turnCW :: Heading -> Heading
@@ -103,7 +87,6 @@ component =
     HH.div_
       [ HH.button [ HE.onClick \_ -> Just Forward ] [ HH.text "+" ]
       , HH.div_ [ HH.text $ show state.position, HH.text $ show state.heading ]
-      , HH.button [ HE.onClick \_ -> Just Backward ] [ HH.text "-" ]
       , HH.button [ HE.onClick \_ -> Just CW ] [ HH.text "->" ]
       , HH.button [ HE.onClick \_ -> Just CCW ] [ HH.text "<-" ]
       , grid state
@@ -114,9 +97,7 @@ component =
   handleAction action =
     case action of
       Forward ->
-        H.modify_ \state -> moveForward state
-      Backward ->
-        H.modify_ \state -> moveBackward state
+        H.modify_ \state -> move state
       CW ->
         H.modify_ \state -> state { heading = (turnCW state.heading) }
       CCW ->

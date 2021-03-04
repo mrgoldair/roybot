@@ -8355,13 +8355,6 @@ var PS = {};
       Forward.value = new Forward();
       return Forward;
   })();
-  var Backward = (function () {
-      function Backward() {
-
-      };
-      Backward.value = new Backward();
-      return Backward;
-  })();
   var CW = (function () {
       function CW() {
 
@@ -8389,10 +8382,10 @@ var PS = {};
       if (heading instanceof West) {
           return North.value;
       };
-      throw new Error("Failed pattern match at Main (line 67, column 3 - line 71, column 18): " + [ heading.constructor.name ]);
+      throw new Error("Failed pattern match at Main (line 51, column 3 - line 55, column 18): " + [ heading.constructor.name ]);
   };
-  var turnCCW = function ($44) {
-      return turnCW(turnCW(turnCW($44)));
+  var turnCCW = function ($32) {
+      return turnCW(turnCW(turnCW($32)));
   };
   var showHeading = new Data_Show.Show(function (v) {
       if (v instanceof North) {
@@ -8409,7 +8402,7 @@ var PS = {};
       };
       throw new Error("Failed pattern match at Main (line 23, column 1 - line 27, column 21): " + [ v.constructor.name ]);
   });
-  var moveForward = function (v) {
+  var move = function (v) {
       if (v.heading instanceof North) {
           if (v.position.row > 1) {
               return {
@@ -8468,73 +8461,14 @@ var PS = {};
       };
       throw new Error("Failed pattern match at Main (line 35, column 3 - line 47, column 27): " + [ v.heading.constructor.name ]);
   };
-  var moveBackward = function (v) {
-      if (v.heading instanceof North) {
-          if (v.position.row < 5) {
-              return {
-                  position: {
-                      row: v.position.row + 1 | 0,
-                      col: v.position.col
-                  },
-                  heading: v.heading
-              };
-          };
-          if (Data_Boolean.otherwise) {
-              return v;
-          };
-      };
-      if (v.heading instanceof South) {
-          if (v.position.row > 1) {
-              return {
-                  position: {
-                      row: v.position.row - 1 | 0,
-                      col: v.position.col
-                  },
-                  heading: v.heading
-              };
-          };
-          if (Data_Boolean.otherwise) {
-              return v;
-          };
-      };
-      if (v.heading instanceof East) {
-          if (v.position.col > 1) {
-              return {
-                  position: {
-                      row: v.position.row,
-                      col: v.position.col - 1 | 0
-                  },
-                  heading: v.heading
-              };
-          };
-          if (Data_Boolean.otherwise) {
-              return v;
-          };
-      };
-      if (v.heading instanceof West) {
-          if (v.position.col < 5) {
-              return {
-                  position: {
-                      row: v.position.row,
-                      col: v.position.col + 1 | 0
-                  },
-                  heading: v.heading
-              };
-          };
-          if (Data_Boolean.otherwise) {
-              return v;
-          };
-      };
-      throw new Error("Failed pattern match at Main (line 51, column 3 - line 63, column 27): " + [ v.heading.constructor.name ]);
-  };
   var grid = function (v) {
       return Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ "grid" ]) ])(Data_Functor.map(Data_Functor.functorArray)(function (c) {
-          var $35 = Data_Eq.eq(Data_Eq.eqRec()(Data_Eq.eqRowCons(Data_Eq.eqRowCons(Data_Eq.eqRowNil)()(new Data_Symbol.IsSymbol(function () {
+          var $23 = Data_Eq.eq(Data_Eq.eqRec()(Data_Eq.eqRowCons(Data_Eq.eqRowCons(Data_Eq.eqRowNil)()(new Data_Symbol.IsSymbol(function () {
               return "row";
           }))(Data_Eq.eqInt))()(new Data_Symbol.IsSymbol(function () {
               return "col";
           }))(Data_Eq.eqInt)))(v.position)(c);
-          if ($35) {
+          if ($23) {
               return Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ "robot", "heading-" ]) ])([ Halogen_HTML_Core.text("R") ]);
           };
           return Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ "cell" ]) ])([ Halogen_HTML_Core.text(Data_Show.show(Data_Show.showRecord()(Data_Show.showRecordFieldsCons(new Data_Symbol.IsSymbol(function () {
@@ -8570,8 +8504,6 @@ var PS = {};
           }))(Data_Show.showRecordFieldsCons(new Data_Symbol.IsSymbol(function () {
               return "row";
           }))(Data_Show.showRecordFieldsNil)(Data_Show.showInt))(Data_Show.showInt)))(state.position)), Halogen_HTML_Core.text(Data_Show.show(showHeading)(state.heading)) ]), Halogen_HTML_Elements.button([ Halogen_HTML_Events.onClick(function (v) {
-              return new Data_Maybe.Just(Backward.value);
-          }) ])([ Halogen_HTML_Core.text("-") ]), Halogen_HTML_Elements.button([ Halogen_HTML_Events.onClick(function (v) {
               return new Data_Maybe.Just(CW.value);
           }) ])([ Halogen_HTML_Core.text("->") ]), Halogen_HTML_Elements.button([ Halogen_HTML_Events.onClick(function (v) {
               return new Data_Maybe.Just(CCW.value);
@@ -8589,39 +8521,34 @@ var PS = {};
       var handleAction = function (action) {
           if (action instanceof Forward) {
               return Control_Monad_State_Class.modify_(Halogen_Query_HalogenM.monadStateHalogenM)(function (state) {
-                  return moveForward(state);
-              });
-          };
-          if (action instanceof Backward) {
-              return Control_Monad_State_Class.modify_(Halogen_Query_HalogenM.monadStateHalogenM)(function (state) {
-                  return moveBackward(state);
+                  return move(state);
               });
           };
           if (action instanceof CW) {
               return Control_Monad_State_Class.modify_(Halogen_Query_HalogenM.monadStateHalogenM)(function (state) {
-                  var $38 = {};
-                  for (var $39 in state) {
-                      if ({}.hasOwnProperty.call(state, $39)) {
-                          $38[$39] = state[$39];
+                  var $26 = {};
+                  for (var $27 in state) {
+                      if ({}.hasOwnProperty.call(state, $27)) {
+                          $26[$27] = state[$27];
                       };
                   };
-                  $38.heading = turnCW(state.heading);
-                  return $38;
+                  $26.heading = turnCW(state.heading);
+                  return $26;
               });
           };
           if (action instanceof CCW) {
               return Control_Monad_State_Class.modify_(Halogen_Query_HalogenM.monadStateHalogenM)(function (state) {
-                  var $41 = {};
-                  for (var $42 in state) {
-                      if ({}.hasOwnProperty.call(state, $42)) {
-                          $41[$42] = state[$42];
+                  var $29 = {};
+                  for (var $30 in state) {
+                      if ({}.hasOwnProperty.call(state, $30)) {
+                          $29[$30] = state[$30];
                       };
                   };
-                  $41.heading = turnCCW(state.heading);
-                  return $41;
+                  $29.heading = turnCCW(state.heading);
+                  return $29;
               });
           };
-          throw new Error("Failed pattern match at Main (line 115, column 5 - line 123, column 72): " + [ action.constructor.name ]);
+          throw new Error("Failed pattern match at Main (line 98, column 5 - line 104, column 72): " + [ action.constructor.name ]);
       };
       return Halogen_Component.mkComponent({
           initialState: initialState,
@@ -8644,11 +8571,9 @@ var PS = {};
   exports["East"] = East;
   exports["West"] = West;
   exports["Forward"] = Forward;
-  exports["Backward"] = Backward;
   exports["CW"] = CW;
   exports["CCW"] = CCW;
-  exports["moveForward"] = moveForward;
-  exports["moveBackward"] = moveBackward;
+  exports["move"] = move;
   exports["turnCW"] = turnCW;
   exports["turnCCW"] = turnCCW;
   exports["grid"] = grid;
