@@ -6,18 +6,32 @@
     <style>
 
       .grid {
+        position: relative;
         display: grid;
-        width: 30vw;
-        grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
-        grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-        height: 30vw;
+        grid-template-rows: repeat(5, 1fr);
+        grid-template-columns: repeat(5, 1fr);
+        grid-gap: 15px;
+        width: 50vw;
+        height: 50vw;
         margin: 0 auto;
+        transform: rotateX(54.7deg) rotateZ(45deg);
+      }
+
+      .cell {
+        background-color: #f1f1f1;
+        border-radius: 14px;
+        border: 1px solid #e6e6e6;
+      }
+
+      @keyframes float {
+        from { transform: scale(1.6) rotateZ(-46deg) rotateY(48deg) translateY(-80px) translateX(30px) }
+        to { transform: scale(1.6) rotateZ(-46deg) rotateY(48deg) translateY(-70px) translateX(30px); }
       }
 
       .robot {
-        background-color: darkgoldenrod;
-        width: 20px;
-        height: 20px;
+        position: absolute;
+        transform: scale(1.6) rotateZ(-46deg) rotateY(48deg) translateY(-80px) translateX(30px);
+        animation: 2s ease-in-out 0s infinite alternate running float;
       }
       
     </style>

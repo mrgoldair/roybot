@@ -59,15 +59,17 @@ turnCCW = turnCW <<< turnCW <<< turnCW
 
 -- Grid Module
 grid :: forall w i. State -> HH.HTML w i
-grid { position } =
+grid { position,heading } =
   HH.div
     [ HP.classes [ HH.ClassName "grid" ] ]
     (map 
       (\c ->
         if (eq position c) then
-          HH.div [ HP.classes [ HH.ClassName "robot", HH.ClassName "heading-" ] ] [ HH.text "R" ]
+          HH.div
+            [ HP.classes [ HH.ClassName "cell" ] ]
+            [ HH.img [ HP.src ("/robot-" <> (show heading) <> ".svg"), HP.classes [ HH.ClassName "robot" ] ] ]
         else
-          HH.div [ HP.classes [ HH.ClassName "cell" ] ] [ HH.text (show c) ])
+          HH.div [ HP.classes [ HH.ClassName "cell" ] ] [ ])
       (range 1 5 >>= \n -> [{ row:n,col:1 }, { row:n,col:2 }, { row:n,col:3 }, { row:n,col:4 }, { row:n,col:5 }]))
 
 component :: forall query i o monad. H.Component HH.HTML query i o monad
@@ -79,7 +81,7 @@ component =
     }
   where
   initialState :: forall input. input -> State
-  initialState _ = { position:{ row:3,col:3 }, heading:North }
+  initialState _ = { position:{ row:3,col:3 }, heading:East }
 
   -- takes State to render HTML which ultimately calls on an Action
   render :: forall mo. State -> H.ComponentHTML Action () mo
