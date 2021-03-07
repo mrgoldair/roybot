@@ -1,8 +1,10 @@
 {
   "devDependencies": {
-    "http-server": "^0.12.3"
+    "http-server": "^0.12.3",
+    "purescript": "^0.14.0",
+    "spago": "^0.19.1"
   },
   "scripts": {
-    "run": "http-server ."
+    "roybot": "http-server ."
   }
 }
