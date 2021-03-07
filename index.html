@@ -3,7 +3,37 @@
   <head>
     <meta charset="utf-8">
     <title>Roybot</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;700&display=swap" rel="stylesheet">
+
     <style>
+      h1,h3 {
+        font-family: Lato;
+        margin: 0;
+      }
+
+      h1 {
+        font-weight: 300;
+        color: #5d5d5d;
+        font-size: 44px;
+        letter-spacing: .2em;
+        text-align: center;
+        margin-top: 40px;
+        margin-bottom: 30px;
+      }
+
+      h3 {
+        font-weight: 700;
+        font-size: 10px;
+        color: #afafaf;
+        letter-spacing: .2em;
+        line-height: 1.6;
+        margin: 5px auto;
+        text-align: center;
+        width: 250px;
+        text-transform: uppercase;
+      }
 
       .grid {
         position: relative;
@@ -13,31 +43,57 @@
         grid-gap: 15px;
         width: 50vw;
         height: 50vw;
+        max-width: 500px;
+        max-height: 500px;
         margin: 0 auto;
-        transform: rotateX(54.7deg) rotateZ(45deg);
+        transform: rotateX(61.7deg) rotateZ(45deg);
       }
 
       .cell {
         background-color: #f1f1f1;
-        border-radius: 14px;
+        border-radius: 5px;
         border: 1px solid #e6e6e6;
       }
 
       @keyframes float {
-        from { transform: scale(1.6) rotateZ(-46deg) rotateY(48deg) translateY(-80px) translateX(30px) }
-        to { transform: scale(1.6) rotateZ(-46deg) rotateY(48deg) translateY(-70px) translateX(30px); }
+        from { transform: rotateZ(-45deg) rotateY(62deg) translateX(140px) translateY(-240px) }
+        to { transform: rotateZ(-45deg) rotateY(62deg) translateX(140px) translateY(-250px) }
       }
 
       .robot {
         position: absolute;
-        transform: scale(1.6) rotateZ(-46deg) rotateY(48deg) translateY(-80px) translateX(30px);
+        transform: rotateZ(-45deg) rotateY(62deg) translateX(140px) translateY(-240px);
         animation: 2s ease-in-out 0s infinite alternate running float;
       }
-      
+
+      .keyboard-icons {
+        display: flex;
+        justify-content: center;
+      }
+
+      .keyboard-icons > img {
+        width: 90px;
+        margin: 0 -10px;
+      }
     </style>
+
+    <link rel="preload" href="robot-north.png" as="image" />
+    <link rel="preload" href="robot-south.png" as="image" />
+    <link rel="preload" href="robot-east.png" as="image" />
+    <link rel="preload" href="robot-west.png" as="image" />
   </head>
   <body>
     <!-- Here is where we reference the bundled JS file built via Spago -->
+    <div style="width: 75vw; margin: 0 auto;">
+      <h1>ROYBOT</h1>
+      <div class="keyboard-icons">
+        <img src="arrow-left.png" alt="">
+        <img src="arrow-up.png" alt="">
+        <img src="arrow-right.png" alt="">
+      </div>
+      <h3>Use the up, left and right arrow keys to turn and move</h3>
+    </div>
+
     <script src="/index.js" charset="utf-8"></script>
   </body>
 </html>
