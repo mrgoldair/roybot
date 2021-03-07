@@ -5,6 +5,7 @@
     "spago": "^0.19.1"
   },
   "scripts": {
-    "roybot": "http-server ."
+    "roybot": "http-server public",
+    "build": "spago bundle-app --to public/index.js"
   }
 }
